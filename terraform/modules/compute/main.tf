@@ -342,7 +342,7 @@ resource "aws_launch_template" "backend_lt" {
     aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $ECR_REGISTRY
     
     # Target Docker image url
-    IMAGE_URL="$ECR_REGISTRY/starttech-backend-$IMAGE_TAG"
+    IMAGE_URL="$ECR_REGISTRY/starttech-backend-${var.environment}:$IMAGE_TAG"
     if [ -z "$ECR_REGISTRY" ]; then
        # Fallback registry path if not set
        IMAGE_URL="${aws_ecr_repository.backend.repository_url}:$IMAGE_TAG"
