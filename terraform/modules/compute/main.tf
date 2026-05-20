@@ -438,7 +438,7 @@ resource "aws_autoscaling_group" "backend_asg" {
 resource "aws_autoscaling_policy" "cpu_scaling" {
   name                   = "starttech-backend-cpu-scaling-${var.environment}"
   policy_type            = "TargetTrackingScaling"
-  auto_scaling_group_name = aws_autoscaling_group.backend_asg.name
+  autoscaling_group_name = aws_autoscaling_group.backend_asg.name
 
   target_tracking_configuration {
     predefined_metric_specification {
