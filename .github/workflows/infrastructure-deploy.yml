@@ -49,10 +49,16 @@ jobs:
 
       - name: Create tfvars from secrets
         run: |
-          echo 'key_pair_name = "${{ secrets.KEY_PAIR_NAME }}"' > terraform.tfvars
-          echo 'my_ip_address = "${{ secrets.MY_IP_ADDRESS }}"' >> terraform.tfvars
-          echo "environment = \"${{ secrets.ENVIRONMENT || 'prod' }}\"" >> terraform.tfvars
-          echo "aws_region = \"${{ secrets.AWS_REGION || 'us-east-1' }}\"" >> terraform.tfvars
+          # Clean secret inputs by stripping any unexpected trailing newlines or carriage returns
+          KEY_PAIR_NAME=$(echo "${{ secrets.KEY_PAIR_NAME }}" | xargs | tr -d '\r\n')
+          MY_IP_ADDRESS=$(echo "${{ secrets.MY_IP_ADDRESS }}" | xargs | tr -d '\r\n')
+          ENVIRONMENT=$(echo "${{ secrets.ENVIRONMENT || 'prod' }}" | xargs | tr -d '\r\n')
+          AWS_REGION=$(echo "${{ secrets.AWS_REGION || 'us-east-1' }}" | xargs | tr -d '\r\n')
+
+          echo "key_pair_name = \"$KEY_PAIR_NAME\"" > terraform.tfvars
+          echo "my_ip_address = \"$MY_IP_ADDRESS\"" >> terraform.tfvars
+          echo "environment = \"$ENVIRONMENT\"" >> terraform.tfvars
+          echo "aws_region = \"$AWS_REGION\"" >> terraform.tfvars
 
       - name: Terraform Plan
         id: plan
