@@ -51,8 +51,8 @@ jobs:
         run: |
           echo 'key_pair_name = "${{ secrets.KEY_PAIR_NAME }}"' > terraform.tfvars
           echo 'my_ip_address = "${{ secrets.MY_IP_ADDRESS }}"' >> terraform.tfvars
-          echo 'environment = "${{ secrets.ENVIRONMENT || '\''prod'\'' }}"' >> terraform.tfvars
-          echo 'aws_region = "${{ secrets.AWS_REGION || '\''us-east-1'\'' }}"' >> terraform.tfvars
+          echo "environment = \"${{ secrets.ENVIRONMENT || 'prod' }}\"" >> terraform.tfvars
+          echo "aws_region = \"${{ secrets.AWS_REGION || 'us-east-1' }}\"" >> terraform.tfvars
 
       - name: Terraform Plan
         id: plan
