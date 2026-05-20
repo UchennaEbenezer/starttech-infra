@@ -1,0 +1,46 @@
+================================================================================
+STARTTECH CLOUDWATCH LOGS INSIGHTS QUERIES
+================================================================================
+
+Run these queries against the CloudWatch Log Group:
+`/aws/ec2/starttech-backend-prod`
+
+--------------------------------------------------------------------------------
+1. Count of Status Codes (HTTP Status Distribution)
+--------------------------------------------------------------------------------
+fields @timestamp, status, path
+| filter ispresent(status)
+| stats count(*) as count by status
+| sort count desc
+
+--------------------------------------------------------------------------------
+2. Average Latency by Request Path (p50, p90, p95, p99)
+--------------------------------------------------------------------------------
+fields @timestamp, latency, path
+| filter ispresent(latency) and ispresent(path)
+| stats avg(latency) as AverageLatency, pct(latency, 50) as p50, pct(latency, 90) as p90, pct(latency, 99) as p99 by path
+| sort AverageLatency desc
+
+--------------------------------------------------------------------------------
+3. Show Errors and Critical Messages (Traces and Messages)
+--------------------------------------------------------------------------------
+fields @timestamp, @message, level, msg, error
+| filter level = 'ERROR' or level = 'CRITICAL' or ispresent(error)
+| sort @timestamp desc
+| limit 100
+
+--------------------------------------------------------------------------------
+4. Count of API Request Volumes over 5-minute bins
+--------------------------------------------------------------------------------
+fields @timestamp, path
+| filter ispresent(path)
+| stats count(*) as RequestCount by bin(5m)
+| sort @timestamp desc
+
+--------------------------------------------------------------------------------
+5. Filter Requests with Status >= 400 (Client or Server Errors)
+--------------------------------------------------------------------------------
+fields @timestamp, status, path, method, latency, error
+| filter status >= 400
+| sort @timestamp desc
+| limit 50

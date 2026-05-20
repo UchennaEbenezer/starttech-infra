@@ -1,0 +1,86 @@
+[
+  {
+    "AlarmName": "starttech-backend-high-cpu",
+    "AlarmDescription": "Triggered when average CPU utilization of backend EC2 instances exceeds 80% for 5 minutes",
+    "MetricName": "CPUUtilization",
+    "Namespace": "AWS/EC2",
+    "Statistic": "Average",
+    "Dimensions": [
+      {
+        "Name": "AutoScalingGroupName",
+        "Value": "techcorp-backend-asg-prod"
+      }
+    ],
+    "Period": 300,
+    "EvaluationPeriods": 1,
+    "Threshold": 80.0,
+    "ComparisonOperator": "GreaterThanOrEqualToThreshold",
+    "AlarmActions": [
+      "arn:aws:sns:us-east-1:123456789012:starttech-ops-alerts"
+    ]
+  },
+  {
+    "AlarmName": "starttech-alb-unhealthy-hosts",
+    "AlarmDescription": "Triggered when the number of unhealthy hosts in the backend target group is greater than or equal to 1",
+    "MetricName": "UnHealthyHostCount",
+    "Namespace": "AWS/ApplicationELB",
+    "Statistic": "Average",
+    "Dimensions": [
+      {
+        "Name": "TargetGroup",
+        "Value": "targetgroup/starttech-backend-tg-prod/a1b2c3d4e5"
+      },
+      {
+        "Name": "LoadBalancer",
+        "Value": "app/techcorp-backend-alb/a1b2c3d4e5"
+      }
+    ],
+    "Period": 60,
+    "EvaluationPeriods": 1,
+    "Threshold": 1.0,
+    "ComparisonOperator": "GreaterThanOrEqualToThreshold",
+    "AlarmActions": [
+      "arn:aws:sns:us-east-1:123456789012:starttech-ops-alerts"
+    ]
+  },
+  {
+    "AlarmName": "starttech-alb-5xx-errors",
+    "AlarmDescription": "Triggered when the number of HTTP 5XX status codes from ALB exceeds 10 in a 5-minute period",
+    "MetricName": "HTTPCode_Target_5XX_Count",
+    "Namespace": "AWS/ApplicationELB",
+    "Statistic": "Sum",
+    "Dimensions": [
+      {
+        "Name": "LoadBalancer",
+        "Value": "app/techcorp-backend-alb/a1b2c3d4e5"
+      }
+    ],
+    "Period": 300,
+    "EvaluationPeriods": 1,
+    "Threshold": 10.0,
+    "ComparisonOperator": "GreaterThanOrEqualToThreshold",
+    "AlarmActions": [
+      "arn:aws:sns:us-east-1:123456789012:starttech-ops-alerts"
+    ]
+  },
+  {
+    "AlarmName": "starttech-redis-high-cpu",
+    "AlarmDescription": "Triggered when CPU utilization on ElastiCache Redis exceeds 75%",
+    "MetricName": "CPUUtilization",
+    "Namespace": "AWS/ElastiCache",
+    "Statistic": "Average",
+    "Dimensions": [
+      {
+        "Name": "ReplicationGroupId",
+        "Value": "starttech-redis-prod"
+      }
+    ],
+    "Period": 300,
+    "EvaluationPeriods": 1,
+    "Threshold": 75.0,
+    "ComparisonOperator": "GreaterThanOrEqualToThreshold",
+    "AlarmActions": [
+      "arn:aws:sns:us-east-1:123456789012:starttech-ops-alerts"
+    ]
+  }
+]

@@ -1,0 +1,19 @@
+# AWS Provider Configuration
+aws_region  = "us-east-1"
+environment = "prod"
+
+# Networking Configuration
+vpc_cidr              = "10.0.0.0/16"
+public_subnet_1_cidr  = "10.0.1.0/24"
+public_subnet_2_cidr  = "10.0.2.0/24"
+private_subnet_1_cidr = "10.0.3.0/24"
+private_subnet_2_cidr = "10.0.4.0/24"
+
+# Access Management
+key_pair_name = "starttech-keypair"
+my_ip_address = "203.0.113.50/32" # Replace with your public IP address (CIDR notation)
+
+# Instance Types Configuration
+bastion_instance_type = "t3.micro"
+backend_instance_type = "t3.micro"
+mongo_instance_type   = "t3.small"
