@@ -67,3 +67,8 @@ variable "mongo_instance_type" {
   type    = string
   default = "t3.small"
 }
+
+variable "suffix" {
+  description = "Random suffix to prevent resource naming conflicts"
+  type        = string
+}

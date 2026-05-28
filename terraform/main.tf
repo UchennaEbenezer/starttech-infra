@@ -68,6 +68,7 @@ module "compute" {
   bastion_instance_type = var.bastion_instance_type
   backend_instance_type = var.backend_instance_type
   mongo_instance_type   = var.mongo_instance_type
+  suffix                = random_id.suffix.hex
 }
 
 # 4. Storage Module (contains S3 static site, CloudFront CDN, and Redis ElastiCache)
@@ -123,12 +124,20 @@ resource "aws_ssm_parameter" "ecr_registry" {
   overwrite   = true
 }
 
+resource "aws_ssm_parameter" "ecr_repository" {
+  name        = "/starttech/backend/ecr_repository"
+  description = "Amazon ECR Repository URL"
+  type        = "String"
+  value       = module.compute.ecr_repository_url
+  overwrite   = true
+}
+
 resource "aws_ssm_parameter" "image_tag" {
   name        = "/starttech/backend/image_tag"
   description = "Current deployed Backend ECR Image Tag"
   type        = "String"
   value       = "latest"
-  overwrite   = false # Do not overwrite in terraform apply to prevent resetting deployments
+  overwrite   = true # Set to true to prevent conflict on recreate when state is lost
   lifecycle {
     ignore_changes = [value]
   }

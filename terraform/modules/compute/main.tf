@@ -10,14 +10,14 @@ data "aws_ami" "amazon_linux_2023" {
 
 # --- ECR Repository ---
 resource "aws_ecr_repository" "backend" {
-  name                 = "starttech-backend-${var.environment}"
+  name                 = "starttech-backend-${var.environment}-${var.suffix}"
   image_tag_mutability = "MUTABLE"
   image_scanning_configuration {
     scan_on_push = true
   }
 
   tags = {
-    Name        = "starttech-backend-ecr-${var.environment}"
+    Name        = "starttech-backend-ecr-${var.environment}-${var.suffix}"
     Environment = var.environment
   }
 }
@@ -338,6 +338,7 @@ resource "aws_launch_template" "backend_lt" {
     MONGO_URI_ATLAS=$(aws ssm get-parameter --name "/starttech/database/mongo_uri" --with-decryption --query "Parameter.Value" --output text --region $AWS_DEFAULT_REGION 2>/dev/null || echo "")
     IMAGE_TAG=$(aws ssm get-parameter --name "/starttech/backend/image_tag" --query "Parameter.Value" --output text --region $AWS_DEFAULT_REGION || echo "latest")
     ECR_REGISTRY=$(aws ssm get-parameter --name "/starttech/backend/ecr_registry" --query "Parameter.Value" --output text --region $AWS_DEFAULT_REGION)
+    ECR_REPO=$(aws ssm get-parameter --name "/starttech/backend/ecr_repository" --query "Parameter.Value" --output text --region $AWS_DEFAULT_REGION 2>/dev/null || echo "")
     
     # Determine the MongoDB Connection String (support MongoDB Atlas or fall back to EC2-hosted MongoDB)
     if [ -n "$MONGO_URI_ATLAS" ] && [ "$MONGO_URI_ATLAS" != "None" ]; then
@@ -352,10 +353,10 @@ resource "aws_launch_template" "backend_lt" {
     aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $ECR_REGISTRY
     
     # Target Docker image url
-    IMAGE_URL="$ECR_REGISTRY/starttech-backend-${var.environment}:$IMAGE_TAG"
-    if [ -z "$ECR_REGISTRY" ]; then
-       # Fallback registry path if not set
-       IMAGE_URL="${aws_ecr_repository.backend.repository_url}:$IMAGE_TAG"
+    if [ -n "$ECR_REPO" ] && [ "$ECR_REPO" != "None" ]; then
+      IMAGE_URL="$ECR_REPO:$IMAGE_TAG"
+    else
+      IMAGE_URL="${aws_ecr_repository.backend.repository_url}:$IMAGE_TAG"
     fi
 
     # Pull image
