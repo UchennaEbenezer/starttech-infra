@@ -335,9 +335,19 @@ resource "aws_launch_template" "backend_lt" {
     JWT_SECRET=$(aws ssm get-parameter --name "/starttech/backend/jwt_secret" --with-decryption --query "Parameter.Value" --output text --region $AWS_DEFAULT_REGION)
     REDIS_ENDPOINT=$(aws ssm get-parameter --name "/starttech/cache/redis_endpoint" --query "Parameter.Value" --output text --region $AWS_DEFAULT_REGION)
     MONGO_IP=$(aws ssm get-parameter --name "/starttech/database/mongo_ip" --query "Parameter.Value" --output text --region $AWS_DEFAULT_REGION)
+    MONGO_URI_ATLAS=$(aws ssm get-parameter --name "/starttech/database/mongo_uri" --with-decryption --query "Parameter.Value" --output text --region $AWS_DEFAULT_REGION 2>/dev/null || echo "")
     IMAGE_TAG=$(aws ssm get-parameter --name "/starttech/backend/image_tag" --query "Parameter.Value" --output text --region $AWS_DEFAULT_REGION || echo "latest")
     ECR_REGISTRY=$(aws ssm get-parameter --name "/starttech/backend/ecr_registry" --query "Parameter.Value" --output text --region $AWS_DEFAULT_REGION)
     
+    # Determine the MongoDB Connection String (support MongoDB Atlas or fall back to EC2-hosted MongoDB)
+    if [ -n "$MONGO_URI_ATLAS" ] && [ "$MONGO_URI_ATLAS" != "None" ]; then
+      echo "Using MongoDB Atlas Connection String from SSM Parameter Store..."
+      FINAL_MONGO_URI="$MONGO_URI_ATLAS"
+    else
+      echo "Using local EC2 MongoDB private connection..."
+      FINAL_MONGO_URI="mongodb://root:$DB_PASSWORD@$MONGO_IP:27017/much_todo_db?authSource=admin"
+    fi
+
     # Authenticate Docker to AWS ECR
     aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $ECR_REGISTRY
     
@@ -361,7 +371,7 @@ resource "aws_launch_template" "backend_lt" {
       --restart unless-stopped \
       -p 8080:8080 \
       -e PORT=8080 \
-      -e MONGO_URI="mongodb://root:$DB_PASSWORD@$MONGO_IP:27017/much_todo_db?authSource=admin" \
+      -e MONGO_URI="$FINAL_MONGO_URI" \
       -e DB_NAME="much_todo_db" \
       -e JWT_SECRET_KEY="$JWT_SECRET" \
       -e ENABLE_CACHE="true" \

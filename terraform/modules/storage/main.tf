@@ -9,6 +9,19 @@ resource "aws_s3_bucket" "frontend" {
   }
 }
 
+# S3 Bucket Static Website Configuration
+resource "aws_s3_bucket_website_configuration" "frontend_website" {
+  bucket = aws_s3_bucket.frontend.id
+
+  index_document {
+    suffix = "index.html"
+  }
+
+  error_document {
+    key = "index.html"
+  }
+}
+
 # Block Direct Public Access to S3
 resource "aws_s3_bucket_public_access_block" "frontend_public_block" {
   bucket                  = aws_s3_bucket.frontend.id
