@@ -67,5 +67,5 @@ jobs:
         run: terraform plan -no-color -out=tfplan
 
       - name: Terraform Apply
-        if: (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/feature/full-stack') && github.event_name == 'push'
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
         run: terraform apply -auto-approve tfplan
