@@ -33,7 +33,7 @@ resource "aws_s3_bucket_public_access_block" "frontend_public_block" {
 
 # CloudFront Origin Access Control (OAC)
 resource "aws_cloudfront_origin_access_control" "oac" {
-  name                              = "starttech-oac-${var.environment}"
+  name                              = "starttech-oac-${var.environment}-${var.suffix}"
   description                       = "OAC for StartTech static files hosting"
   origin_access_control_origin_type = "s3"
   signing_behavior                  = "always"
@@ -128,13 +128,13 @@ resource "aws_s3_bucket_policy" "cloudfront_access" {
 
 # ElastiCache Redis Subnet Group
 resource "aws_elasticache_subnet_group" "redis_subnets" {
-  name       = "starttech-redis-subnets-${var.environment}"
+  name       = "starttech-redis-subnets-${var.environment}-${var.suffix}"
   subnet_ids = var.private_subnet_ids
 }
 
 # ElastiCache Redis Replication Group
 resource "aws_elasticache_replication_group" "redis" {
-  replication_group_id        = "starttech-redis-${var.environment}"
+  replication_group_id        = "redis-${var.environment}-${var.suffix}"
   description                 = "StartTech Redis cluster for caching"
   node_type                   = "cache.t4g.micro" # Cost-effective modern type
   num_cache_clusters          = 1                 # Single node replica set (cluster mode disabled)
@@ -146,7 +146,7 @@ resource "aws_elasticache_replication_group" "redis" {
   transit_encryption_enabled = false # Keep encryption simple for local code connectivity
 
   tags = {
-    Name        = "starttech-redis-${var.environment}"
+    Name        = "starttech-redis-${var.environment}-${var.suffix}"
     Environment = var.environment
   }
 }

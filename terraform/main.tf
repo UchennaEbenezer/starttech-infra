@@ -27,6 +27,10 @@ resource "random_password" "mongo_password" {
   special = false
 }
 
+resource "random_id" "suffix" {
+  byte_length = 3
+}
+
 # --- Module Invocations ---
 
 # 1. Networking Module
@@ -44,6 +48,7 @@ module "networking" {
 module "monitoring" {
   source      = "./modules/monitoring"
   environment = var.environment
+  suffix      = random_id.suffix.hex
 }
 
 # 3. Compute Module (contains SGs, ASG, ALB, Bastion, MongoDB, and ECR)
@@ -72,6 +77,7 @@ module "storage" {
   private_subnet_ids       = module.networking.private_subnet_ids
   redis_security_group_ids = [module.compute.redis_security_group_id]
   environment              = var.environment
+  suffix                   = random_id.suffix.hex
 }
 
 

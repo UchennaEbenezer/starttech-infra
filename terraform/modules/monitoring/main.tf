@@ -1,6 +1,6 @@
 # IAM Role for EC2
 resource "aws_iam_role" "ec2_role" {
-  name = "starttech-ec2-role-${var.environment}"
+  name = "starttech-ec2-role-${var.environment}-${var.suffix}"
 
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
@@ -16,7 +16,7 @@ resource "aws_iam_role" "ec2_role" {
   })
 
   tags = {
-    Name        = "starttech-ec2-role-${var.environment}"
+    Name        = "starttech-ec2-role-${var.environment}-${var.suffix}"
     Environment = var.environment
   }
 }
@@ -41,17 +41,17 @@ resource "aws_iam_role_policy_attachment" "ecr_policy" {
 
 # Create IAM Instance Profile
 resource "aws_iam_instance_profile" "ec2_profile" {
-  name = "starttech-ec2-instance-profile-${var.environment}"
+  name = "starttech-ec2-instance-profile-${var.environment}-${var.suffix}"
   role = aws_iam_role.ec2_role.name
 }
 
 # CloudWatch Log Group for Application Container logs
 resource "aws_cloudwatch_log_group" "backend_logs" {
-  name              = "/aws/ec2/starttech-backend-${var.environment}"
+  name              = "/aws/ec2/starttech-backend-${var.environment}-${var.suffix}"
   retention_in_days = 7
 
   tags = {
-    Name        = "starttech-backend-logs-${var.environment}"
+    Name        = "starttech-backend-logs-${var.environment}-${var.suffix}"
     Environment = var.environment
   }
 }
