@@ -254,7 +254,7 @@ resource "aws_instance" "mongodb" {
 
 # --- Application Load Balancer (ALB) ---
 resource "aws_lb" "backend_alb" {
-  name               = "techcorp-backend-alb"
+  name               = "techcorp-backend-alb-${var.suffix}"
   internal           = false
   load_balancer_type = "application"
   security_groups    = [aws_security_group.alb_sg.id]
@@ -267,7 +267,7 @@ resource "aws_lb" "backend_alb" {
 }
 
 resource "aws_lb_target_group" "backend_tg" {
-  name     = "starttech-backend-tg-${var.environment}"
+  name     = "starttech-tg-${var.suffix}"
   port     = 8080
   protocol = "HTTP"
   vpc_id   = var.vpc_id
