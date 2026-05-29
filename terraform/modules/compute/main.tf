@@ -362,6 +362,10 @@ resource "aws_launch_template" "backend_lt" {
     # Pull image
     docker pull $IMAGE_URL
 
+     # Fetch Instance ID dynamically using IMDSv2
+    TOKEN=$(curl -s -X PUT "http://169.254.169.254/latest/api/token" -H "X-aws-ec2-metadata-token-ttl-seconds: 21600")
+    INSTANCE_ID=$(curl -s -H "X-aws-ec2-metadata-token: $TOKEN" http://169.254.169.254/latest/meta-data/instance-id || echo "unknown-instance")
+
     # Stop and clean existing backend containers
     docker stop starttech-backend || true
     docker rm starttech-backend || true
@@ -381,7 +385,7 @@ resource "aws_launch_template" "backend_lt" {
       -e LOG_FORMAT="json" \
       --log-driver=awslogs \
       --log-opt awslogs-group="${var.log_group_name}" \
-      --log-opt awslogs-stream="backend-instance" \
+      --log-opt awslogs-stream="backend-$INSTANCE_ID" \
       --log-opt awslogs-create-group=true \
       $IMAGE_URL
   EOF
